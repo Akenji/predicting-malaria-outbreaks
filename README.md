@@ -26,7 +26,7 @@ MALARIA/
 ├── feature_importance.csv
 ├── feature_importance.png
 ├── loading.py
-├── model.py
+├── malaria_prediction_model.py
 ├── processed_data.csv
 └── test_malaria_db.py
 ```
@@ -65,7 +65,7 @@ The project uses a dimensional data model with the following key files:
 - **loading.py**: Manages data loading and ETL processes
 
 ### Model
-- **model.py**: Contains the Random Forest implementation
+- **malaria_prediction_model.py**: Contains the Random Forest implementation
 - **test_malaria_db.py**: Test suite for database operations
 
 ### Analysis Outputs
@@ -102,7 +102,7 @@ python loading.py
 
 3. Train and Run Model:
 ```bash
-python model.py
+python malaria_prediction_model.py
 ```
 
 4. Run Tests:
