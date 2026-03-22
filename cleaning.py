@@ -6,8 +6,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 def connect_to_db():
     return mysql.connector.connect(
         host="127.0.0.1",
-        user="admin",
-        password="admin",
+        user="root",
+        password="sql80",
         database="malaria"
     )
 
@@ -96,24 +96,23 @@ def encode_and_scale(df):
     print("Encoding and scaling complete.")
     return processed_df
 
-# Main processing
-if __name__ == "_main_":
+def main():
     conn = connect_to_db()
+    try:
+        tables = [
+            'dim_dates', 'dim_demographics', 'dim_environment', 'dim_health_initiatives',
+            'dim_healthcare', 'dim_infrastructure', 'dim_location', 'dim_prevention',
+            'dim_socioeconomic', 'dim_weather', 'fact_malaria_cases'
+        ]
 
-    tables = [
-        'dim_dates', 'dim_demographics', 'dim_environment', 'dim_health_initiatives',
-        'dim_healthcare', 'dim_infrastructure', 'dim_location', 'dim_prevention',
-        'dim_socioeconomic', 'dim_weather', 'fact_malaria_cases'
-    ]
+        combined_data = combine_dataframes(tables, conn)
+        preprocessed_data = encode_and_scale(combined_data)
 
-    # Combine all data
-    combined_data = combine_dataframes(tables, conn)
+        preprocessed_data.to_csv('processed_data.csv', index=False)
+        print("\nData preprocessing complete. Saved processed data to 'processed_data.csv'.")
+    finally:
+        conn.close()
 
-    # Encode and scale the data
-    preprocessed_data = encode_and_scale(combined_data)
 
-    # Save the processed data for machine learning
-    preprocessed_data.to_csv('processed_data.csv', index=False)
-    print("\nData preprocessing complete. Saved processed data to 'processed_data.csv'.")
-
-    conn.close()
+if __name__ == "__main__":
+    main()

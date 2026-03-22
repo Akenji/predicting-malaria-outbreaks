@@ -4,8 +4,9 @@ import numpy as np
 import mysql.connector
 from unittest.mock import Mock, patch, MagicMock
 from pandas.testing import assert_frame_equal
+from pathlib import Path
 import cleaning  # The first script
-import loading # The second script
+import loading  # The second script
 
 # Test data fixtures
 @pytest.fixture
@@ -31,8 +32,8 @@ class TestPreprocessingFunctions:
             assert conn is not None
             mysql.connector.connect.assert_called_once_with(
                 host="127.0.0.1",
-                user="admin",
-                password="admin",
+                user="root",
+                password="sql80",
                 database="malaria"
             )
 
@@ -86,7 +87,7 @@ class TestPreprocessingFunctions:
         result = cleaning.encode_and_scale(input_df)
         assert result is not None
         assert result['numeric'].mean() == pytest.approx(0, abs=1e-10)
-        assert result['numeric'].std() == pytest.approx(1, abs=1e-10)
+        assert result['numeric'].std(ddof=0) == pytest.approx(1, abs=1e-10)
 
 # Data Loader Tests
 class TestDataLoader:
@@ -127,17 +128,13 @@ class TestDataLoader:
 
     @patch('loading.load_csv_to_db')
     def test_main_script_processes_all_files(self, mock_load_csv):
-        with patch('mysql.connector.connect', return_value=mock_db_connection):
-            # Run the main script
+        with patch('mysql.connector.connect', return_value=MagicMock()):
             loading.main()
-            
-            # Verify load_csv_to_db was called for each table
             assert mock_load_csv.call_count == len(loading.csv_files)
 
 # Integration test
 def test_end_to_end_preprocessing(mock_db_connection, tmp_path):
-    # Create test CSV file
-    test_csv = tmp_path / "processed_data.csv"
+    test_csv = Path("processed_data.csv")
     
     with patch('mysql.connector.connect', return_value=mock_db_connection), \
          patch('cleaning.combine_dataframes', return_value=pd.DataFrame({
@@ -146,8 +143,6 @@ def test_end_to_end_preprocessing(mock_db_connection, tmp_path):
          })):
         
         cleaning.main()
-        
-        # Verify the processed data was saved
         assert test_csv.exists()
 
 if __name__ == '__main__':

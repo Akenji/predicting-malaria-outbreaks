@@ -16,8 +16,8 @@ class DatabaseConnector:
     def __init__(self):
         self.connection = mysql.connector.connect(
             host='127.0.0.1',
-            user='admin',
-            password='admin',
+            user='root',
+            password='sql80',
             database='malaria'
         )
         self.cursor = self.connection.cursor()
